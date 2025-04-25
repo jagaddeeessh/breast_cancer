@@ -970,6 +970,96 @@ window.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+    <!-- 📄 View & Manage Saved Report -->
+<div class="save-options" style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 30px;">
+    <button class="btn btn-primary" id="saveOfflineBtn" style="flex: 1; min-width: 200px;">
+        <i class="fas fa-save"></i> Save Result for Offline Use
+    </button>
+    <button class="btn btn-outline" id="downloadSavedBtn" style="flex: 1; min-width: 200px;">
+        <i class="fas fa-download"></i> Download Saved Report
+    </button>
+    <button class="btn btn-secondary" id="showReportBtn" style="flex: 1; min-width: 200px;">
+        <i class="fas fa-eye"></i> View Saved Report
+    </button>
+</div>
+
+<div id="saveStatus" style="margin-top: 15px; color: green; font-weight: bold;"></div>
+
+<!-- Saved Report Card -->
+<div id="savedReportBox" style="display: none; margin-top: 25px; padding: 20px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    <h3 style="color: #2c7be5; margin-bottom: 10px;">📄 Saved Report</h3>
+    <div id="savedReportContent" style="font-size: 1rem; margin-bottom: 10px;"></div>
+    <button class="btn btn-secondary" id="deleteSavedBtn">
+        <i class="fas fa-trash"></i> Delete Saved Report
+    </button>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Save Button
+    document.getElementById("saveOfflineBtn")?.addEventListener("click", function () {
+        const report = {
+            location: document.getElementById('locationDetails')?.textContent || 'Unknown Location',
+            date: new Date().toLocaleString(),
+            risk: document.getElementById('riskLevelText')?.textContent || 'Unknown Risk',
+            percentage: document.getElementById('riskPercentage')?.textContent || 'N/A',
+            message: "Saved by the Community Health App"
+        };
+
+        localStorage.setItem("breastCancerAssessment", JSON.stringify(report));
+        document.getElementById("saveStatus").textContent = "✅ Saved! You can download or view it anytime.";
+    });
+
+    // Download Button
+    document.getElementById("downloadSavedBtn")?.addEventListener("click", function () {
+        const savedData = localStorage.getItem("breastCancerAssessment");
+
+        if (!savedData) {
+            alert("⚠️ No saved report found.");
+            return;
+        }
+
+        const blob = new Blob([savedData], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "breast_cancer_report.json";
+        a.click();
+    });
+
+    // View Saved Report
+    const showReportBtn = document.getElementById("showReportBtn");
+    const savedReportBox = document.getElementById("savedReportBox");
+    const savedReportContent = document.getElementById("savedReportContent");
+    const deleteSavedBtn = document.getElementById("deleteSavedBtn");
+
+    showReportBtn?.addEventListener("click", function () {
+        const data = localStorage.getItem("breastCancerAssessment");
+        if (!data) {
+            savedReportContent.innerHTML = "<p style='color: red;'>❌ No saved report found.</p>";
+        } else {
+            const report = JSON.parse(data);
+            savedReportContent.innerHTML = `
+                <p><strong>📍 Location:</strong> ${report.location}</p>
+                <p><strong>📅 Date:</strong> ${report.date}</p>
+                <p><strong>⚠️ Risk Level:</strong> <span style="font-weight: bold; color: #dc3545;">${report.risk}</span></p>
+                <p><strong>📊 Risk Percentage:</strong> ${report.percentage}</p>
+                <p style="font-style: italic;">${report.message}</p>
+            `;
+        }
+        savedReportBox.style.display = "block";
+        showReportBtn.style.display = "none";
+    });
+
+    // Delete Saved Report
+    deleteSavedBtn?.addEventListener("click", function () {
+        localStorage.removeItem("breastCancerAssessment");
+        savedReportBox.style.display = "none";
+        showReportBtn.style.display = "inline-block";
+        alert("✅ Saved report deleted.");
+    });
+});
+</script>
+
 </body>
 
 </html>
